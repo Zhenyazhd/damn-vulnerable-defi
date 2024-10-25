@@ -3,15 +3,16 @@
 pragma solidity =0.8.25;
 
 import {Test, console} from "forge-std/Test.sol";
-import {SafeProxyFactory} from "@safe-global/safe-smart-account/contracts/proxies/SafeProxyFactory.sol";
+import {SafeProxyFactory, SafeProxy} from "@safe-global/safe-smart-account/contracts/proxies/SafeProxyFactory.sol";
 import {Safe, OwnerManager, Enum} from "@safe-global/safe-smart-account/contracts/Safe.sol";
 import {Create2} from "@openzeppelin/contracts/utils/Create2.sol";
 import {DamnValuableToken} from "../../src/DamnValuableToken.sol";
 import {WalletDeployer} from "../../src/wallet-mining/WalletDeployer.sol";
+import {Attack} from "../../src/wallet-mining/Attack.sol";
+
 import {
     AuthorizerFactory, AuthorizerUpgradeable, TransparentProxy
 } from "../../src/wallet-mining/AuthorizerFactory.sol";
-import {Attack} from "../../src/wallet-mining/Attack.sol";
 
 contract WalletMiningChallenge is Test {
     address deployer = makeAddr("deployer");
@@ -152,6 +153,7 @@ contract WalletMiningChallenge is Test {
 
         attack.attack(address(token), user, USER_DEPOSIT_ADDRESS, signature);
     }
+    
 
     /**
      * CHECKS SUCCESS CONDITIONS - DO NOT TOUCH

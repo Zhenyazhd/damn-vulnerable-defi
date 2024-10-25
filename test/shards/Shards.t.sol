@@ -11,6 +11,7 @@ import {
     DamnValuableNFT
 } from "../../src/shards/ShardsNFTMarketplace.sol";
 import {DamnValuableStaking} from "../../src/DamnValuableStaking.sol";
+import {Attack} from "../../src/shards/Attack.sol";
 
 contract ShardsChallenge is Test {
     address deployer = makeAddr("deployer");
@@ -114,7 +115,9 @@ contract ShardsChallenge is Test {
      * CODE YOUR SOLUTION HERE
      */
     function test_shards() public checkSolvedByPlayer {
-        
+        IShardsNFTMarketplace.Offer memory offer = marketplace.getOffer(uint64(1));
+        Attack attack = new Attack(marketplace, token, recovery);
+        attack.attack();
     }
 
     /**
