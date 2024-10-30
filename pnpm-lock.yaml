@@ -1,0 +1,22 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@balancer-labs/v2-interfaces':
+        specifier: ^0.4.0
+        version: 0.4.0
+
+packages:
+
+  '@balancer-labs/v2-interfaces@0.4.0':
+    resolution: {integrity: sha512-K0ij26m8/UOvdPmrAnuh/C7kT8OQupsgV8KRyIt+aTHW1KbPOi4v8zLMwW2AwSYMSRjPK2A/ttlnNizT0iA4Qg==}
+
+snapshots:
+
+  '@balancer-labs/v2-interfaces@0.4.0': {}

@@ -133,4 +133,17 @@ contract CurvyPuppetLending is ReentrancyGuard {
     function _getLPTokenPrice() private view returns (uint256) {
         return oracle.getPrice(curvePool.coins(0)).value.mulWadDown(curvePool.get_virtual_price());
     }
+
+
+
+
+    function getBorrowValue_new(uint256 amount, uint256 kek) public view returns (uint256) {
+        if (amount == 0) return 0;
+        return amount.mulWadUp(_getLPTokenPrice_new(kek));
+    }
+
+
+    function _getLPTokenPrice_new(uint256 kek) private view returns (uint256) {
+        return oracle.getPrice(curvePool.coins(0)).value.mulWadDown(kek);
+    }
 }
