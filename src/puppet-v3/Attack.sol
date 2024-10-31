@@ -69,6 +69,4 @@ contract Attack is IUniswapV3SwapCallback{
     function getETH() public {
         weth.transfer(msg.sender, weth.balanceOf(address(this)));
     }
-
-
 }

